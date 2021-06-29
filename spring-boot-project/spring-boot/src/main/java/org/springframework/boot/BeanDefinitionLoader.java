@@ -154,6 +154,7 @@ class BeanDefinitionLoader {
 			load(loader);
 		}
 		if (isComponent(source)) {
+			// 走注解的BeanDefinition注册流程
 			this.annotatedReader.register(source);
 			return 1;
 		}
@@ -276,6 +277,8 @@ class BeanDefinitionLoader {
 	private boolean isComponent(Class<?> type) {
 		// This has to be a bit of a guess. The only way to be sure that this type is
 		// eligible is to make a bean definition out of it and try to instantiate it.
+		// 这里会扫描整个类结构的注解，@Component,@Controller,@Service,@Repository都会扫描进去，
+		// 自己定义组合@component注解也会扫描进去
 		if (MergedAnnotations.from(type, SearchStrategy.TYPE_HIERARCHY).isPresent(Component.class)) {
 			return true;
 		}
