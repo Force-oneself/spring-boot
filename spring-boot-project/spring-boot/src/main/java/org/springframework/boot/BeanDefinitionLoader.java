@@ -79,11 +79,14 @@ class BeanDefinitionLoader {
 		Assert.notNull(registry, "Registry must not be null");
 		Assert.notEmpty(sources, "Sources must not be empty");
 		this.sources = sources;
+		// 这里会加载Spring的注解版的一些PostProcessor处理器
 		this.annotatedReader = new AnnotatedBeanDefinitionReader(registry);
+		// 这个负责加载xml相关的配置，兼容xml
 		this.xmlReader = new XmlBeanDefinitionReader(registry);
 		if (isGroovyPresent()) {
 			this.groovyReader = new GroovyBeanDefinitionReader(registry);
 		}
+		// 路径扫描器
 		this.scanner = new ClassPathBeanDefinitionScanner(registry);
 		this.scanner.addExcludeFilter(new ClassExcludeFilter(sources));
 	}
@@ -125,6 +128,7 @@ class BeanDefinitionLoader {
 	int load() {
 		int count = 0;
 		for (Object source : this.sources) {
+			// 进行分发处理去读取BeanDefinition
 			count += load(source);
 		}
 		return count;
@@ -133,15 +137,19 @@ class BeanDefinitionLoader {
 	private int load(Object source) {
 		Assert.notNull(source, "Source must not be null");
 		if (source instanceof Class<?>) {
+			// 注解的读取BeanDefinition
 			return load((Class<?>) source);
 		}
 		if (source instanceof Resource) {
+			// xml配置文件的读取BeanDefinition
 			return load((Resource) source);
 		}
 		if (source instanceof Package) {
+			// 包路径扫描读取BeanDefinition
 			return load((Package) source);
 		}
 		if (source instanceof CharSequence) {
+			// 上面几种都走一边
 			return load((CharSequence) source);
 		}
 		throw new IllegalArgumentException("Invalid source type " + source.getClass());
@@ -153,6 +161,7 @@ class BeanDefinitionLoader {
 			GroovyBeanDefinitionSource loader = BeanUtils.instantiateClass(source, GroovyBeanDefinitionSource.class);
 			load(loader);
 		}
+		// 带@Componet的注解都符合
 		if (isComponent(source)) {
 			// 走注解的BeanDefinition注册流程
 			this.annotatedReader.register(source);
@@ -175,6 +184,7 @@ class BeanDefinitionLoader {
 			}
 			return this.groovyReader.loadBeanDefinitions(source);
 		}
+		// 使用xml的方式读取文件
 		return this.xmlReader.loadBeanDefinitions(source);
 	}
 
@@ -183,8 +193,9 @@ class BeanDefinitionLoader {
 	}
 
 	private int load(CharSequence source) {
+		// 先处理占位符
 		String resolvedSource = this.xmlReader.getEnvironment().resolvePlaceholders(source.toString());
-		// Attempt as a Class
+		// 尝试作为一个Class
 		try {
 			return load(ClassUtils.forName(resolvedSource, null));
 		}
@@ -282,8 +293,7 @@ class BeanDefinitionLoader {
 		if (MergedAnnotations.from(type, SearchStrategy.TYPE_HIERARCHY).isPresent(Component.class)) {
 			return true;
 		}
-		// Nested anonymous classes are not eligible for registration, nor are groovy
-		// closures
+		// 嵌套匿名类不符合注册条件，groovy 闭包也不符合注册条件
 		return !type.getName().matches(".*\\$_.*closure.*") && !type.isAnonymousClass()
 				&& type.getConstructors() != null && type.getConstructors().length != 0;
 	}

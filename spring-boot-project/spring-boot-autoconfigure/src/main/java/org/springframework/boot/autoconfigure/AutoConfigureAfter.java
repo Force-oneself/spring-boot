@@ -26,14 +26,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
 /**
- * Hint for that an {@link EnableAutoConfiguration auto-configuration} should be applied
- * after other specified auto-configuration classes.
- * <p>
- * As with standard {@link Configuration @Configuration} classes, the order in which
- * auto-configuration classes are applied only affects the order in which their beans are
- * defined. The order in which those beans are subsequently created is unaffected and is
- * determined by each bean's dependencies and any {@link DependsOn @DependsOn}
- * relationships.
+ * 提示应该在其他指定的自动配置类之后应用 {@link EnableAutoConfiguration 自动配置}。
+ * <p> 与标准的 {@link Configuration @Configuration} 类一样，
+ * 自动配置类的应用顺序仅影响其 bean 的定义顺序。随后创建这些 bean 的顺序不受影响，
+ * 并由每个 bean 的依赖项和任何 {@link DependsOn @DependsOn} 关系决定。
  *
  * @author Phillip Webb
  * @since 1.0.0
@@ -44,13 +40,13 @@ import org.springframework.context.annotation.DependsOn;
 public @interface AutoConfigureAfter {
 
 	/**
-	 * The auto-configure classes that should have already been applied.
+	 * 应该已经应用的自动配置类。
 	 * @return the classes
 	 */
 	Class<?>[] value() default {};
 
 	/**
-	 * The names of the auto-configure classes that should have already been applied.
+	 * 应该已经应用的自动配置类的名称。
 	 * @return the class names
 	 * @since 1.2.2
 	 */

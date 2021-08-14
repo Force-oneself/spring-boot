@@ -76,6 +76,7 @@ public class ApplicationConversionService extends FormattingConversionService {
 		if (sharedInstance == null) {
 			synchronized (ApplicationConversionService.class) {
 				sharedInstance = ApplicationConversionService.sharedInstance;
+				// 双重检查，懒加载实现单例ApplicationConversionService
 				if (sharedInstance == null) {
 					sharedInstance = new ApplicationConversionService();
 					ApplicationConversionService.sharedInstance = sharedInstance;

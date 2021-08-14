@@ -42,7 +42,7 @@ public final class LazyInitializationBeanFactoryPostProcessor implements BeanFac
 
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-		// Take care not to force the eager init of factory beans when getting filters
+		// 获取过滤器时注意不要强制工厂bean的急切初始化
 		Collection<LazyInitializationExcludeFilter> filters = beanFactory
 				.getBeansOfType(LazyInitializationExcludeFilter.class, false, false).values();
 		for (String beanName : beanFactory.getBeanDefinitionNames()) {
@@ -57,11 +57,13 @@ public final class LazyInitializationBeanFactoryPostProcessor implements BeanFac
 			Collection<LazyInitializationExcludeFilter> filters, String beanName,
 			AbstractBeanDefinition beanDefinition) {
 		Boolean lazyInit = beanDefinition.getLazyInit();
+		// 配置了lazy，直接返回
 		if (lazyInit != null) {
 			return;
 		}
 		Class<?> beanType = getBeanType(beanFactory, beanName);
 		if (!isExcluded(filters, beanName, beanDefinition, beanType)) {
+			// 非排除的Bean都被强制加上懒加载
 			beanDefinition.setLazyInit(true);
 		}
 	}
@@ -78,6 +80,7 @@ public final class LazyInitializationBeanFactoryPostProcessor implements BeanFac
 	private boolean isExcluded(Collection<LazyInitializationExcludeFilter> filters, String beanName,
 			AbstractBeanDefinition beanDefinition, Class<?> beanType) {
 		if (beanType != null) {
+			// Force-Spring 拓展：在开启配置懒加载时，通过LazyInitializationExcludeFilter可以排除掉自定义的Bean添加懒加载标识
 			for (LazyInitializationExcludeFilter filter : filters) {
 				if (filter.isExcluded(beanName, beanDefinition, beanType)) {
 					return true;

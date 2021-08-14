@@ -61,7 +61,8 @@ public class SpringApplicationAdminJmxAutoConfiguration {
 	public SpringApplicationAdminMXBeanRegistrar springApplicationAdminRegistrar(
 			ObjectProvider<MBeanExporter> mbeanExporters, Environment environment) throws MalformedObjectNameException {
 		String jmxName = environment.getProperty(JMX_NAME_PROPERTY, DEFAULT_JMX_NAME);
-		if (mbeanExporters != null) { // Make sure to not register that MBean twice
+		// Make sure to not register that MBean twice
+		if (mbeanExporters != null) {
 			for (MBeanExporter mbeanExporter : mbeanExporters) {
 				mbeanExporter.addExcludedBean(jmxName);
 			}
