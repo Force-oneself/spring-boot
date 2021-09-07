@@ -46,9 +46,9 @@ class OnClassCondition extends FilteringSpringBootCondition {
 	@Override
 	protected final ConditionOutcome[] getOutcomes(String[] autoConfigurationClasses,
 			AutoConfigurationMetadata autoConfigurationMetadata) {
-		// Split the work and perform half in a background thread if more than one
-		// processor is available. Using a single additional thread seems to offer the
-		// best performance. More threads make things worse.
+		// 如果有多个处理器可用，则拆分工作并在后台线程中执行一半。
+		// 使用单个附加线程似乎可以提供最佳性能。
+		// 更多的线程使事情变得更糟。
 		if (Runtime.getRuntime().availableProcessors() > 1) {
 			return resolveOutcomesThreaded(autoConfigurationClasses, autoConfigurationMetadata);
 		}
@@ -61,14 +61,17 @@ class OnClassCondition extends FilteringSpringBootCondition {
 
 	private ConditionOutcome[] resolveOutcomesThreaded(String[] autoConfigurationClasses,
 			AutoConfigurationMetadata autoConfigurationMetadata) {
+		// 分片
 		int split = autoConfigurationClasses.length / 2;
 		OutcomesResolver firstHalfResolver = createOutcomesResolver(autoConfigurationClasses, 0, split,
 				autoConfigurationMetadata);
+
 		OutcomesResolver secondHalfResolver = new StandardOutcomesResolver(autoConfigurationClasses, split,
 				autoConfigurationClasses.length, autoConfigurationMetadata, getBeanClassLoader());
 		ConditionOutcome[] secondHalf = secondHalfResolver.resolveOutcomes();
 		ConditionOutcome[] firstHalf = firstHalfResolver.resolveOutcomes();
 		ConditionOutcome[] outcomes = new ConditionOutcome[autoConfigurationClasses.length];
+		// 将结果复制到结果中
 		System.arraycopy(firstHalf, 0, outcomes, 0, firstHalf.length);
 		System.arraycopy(secondHalf, 0, outcomes, split, secondHalf.length);
 		return outcomes;
@@ -79,6 +82,7 @@ class OnClassCondition extends FilteringSpringBootCondition {
 		OutcomesResolver outcomesResolver = new StandardOutcomesResolver(autoConfigurationClasses, start, end,
 				autoConfigurationMetadata, getBeanClassLoader());
 		try {
+			// 多线程执行
 			return new ThreadedOutcomesResolver(outcomesResolver);
 		}
 		catch (AccessControlException ex) {

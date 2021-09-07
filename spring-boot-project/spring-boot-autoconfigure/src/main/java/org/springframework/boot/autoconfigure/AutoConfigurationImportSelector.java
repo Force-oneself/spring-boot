@@ -113,6 +113,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 			return EMPTY_ENTRY;
 		}
 		AnnotationAttributes attributes = getAttributes(annotationMetadata);
+		// Force-Spring 从META-INF/spring.factories加载EnableAutoConfiguration的配置
 		List<String> configurations = getCandidateConfigurations(annotationMetadata, attributes);
 		configurations = removeDuplicates(configurations);
 		Set<String> exclusions = getExclusions(annotationMetadata, attributes);
@@ -288,6 +289,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 			AutoConfigurationImportEvent event = new AutoConfigurationImportEvent(this, configurations, exclusions);
 			for (AutoConfigurationImportListener listener : listeners) {
 				invokeAwareMethods(listener);
+				// Force-Spring 拓展：AutoConfigurationImportListener执行onAutoConfigurationImportEvent
 				listener.onAutoConfigurationImportEvent(event);
 			}
 		}
