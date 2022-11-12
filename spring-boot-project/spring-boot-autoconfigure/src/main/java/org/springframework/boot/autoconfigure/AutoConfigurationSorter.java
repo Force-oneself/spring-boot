@@ -57,8 +57,10 @@ class AutoConfigurationSorter {
 				this.autoConfigurationMetadata, classNames);
 		List<String> orderedClassNames = new ArrayList<>(classNames);
 		// Initially sort alphabetically
+		// 按字母排序
 		Collections.sort(orderedClassNames);
 		// Then sort by order
+		// 根据@AutoConfigureOrder排序
 		orderedClassNames.sort((o1, o2) -> {
 			int i1 = classes.get(o1).getOrder();
 			int i2 = classes.get(o2).getOrder();
@@ -70,11 +72,15 @@ class AutoConfigurationSorter {
 	}
 
 	private List<String> sortByAnnotation(AutoConfigurationClasses classes, List<String> classNames) {
+		// 需要排序的
 		List<String> toSort = new ArrayList<>(classNames);
 		toSort.addAll(classes.getAllNames());
+		// 已经排序好的
 		Set<String> sorted = new LinkedHashSet<>();
+		// 正在处理的
 		Set<String> processing = new LinkedHashSet<>();
 		while (!toSort.isEmpty()) {
+			// DFS算法
 			doSortByAfterAnnotation(classes, toSort, sorted, processing, null);
 		}
 		sorted.retainAll(classNames);
@@ -87,9 +93,12 @@ class AutoConfigurationSorter {
 			current = toSort.remove(0);
 		}
 		processing.add(current);
+		// 拿到当前类 AutoConfigureAfter 以及 其他类 AutoConfigureBefore 当前的类
 		for (String after : classes.getClassesRequestedAfter(current)) {
+			// 存在循环
 			Assert.state(!processing.contains(after),
 					"AutoConfigure cycle detected between " + current + " and " + after);
+			// after 还未排序并且 after 是需要排序的
 			if (!sorted.contains(after) && toSort.contains(after)) {
 				doSortByAfterAnnotation(classes, toSort, sorted, processing, after);
 			}
@@ -114,6 +123,7 @@ class AutoConfigurationSorter {
 		private void addToClasses(MetadataReaderFactory metadataReaderFactory,
 				AutoConfigurationMetadata autoConfigurationMetadata, Collection<String> classNames, boolean required) {
 			for (String className : classNames) {
+				// 没处理过的
 				if (!this.classes.containsKey(className)) {
 					AutoConfigurationClass autoConfigurationClass = new AutoConfigurationClass(className,
 							metadataReaderFactory, autoConfigurationMetadata);
@@ -138,6 +148,7 @@ class AutoConfigurationSorter {
 		Set<String> getClassesRequestedAfter(String className) {
 			Set<String> classesRequestedAfter = new LinkedHashSet<>(get(className).getAfter());
 			this.classes.forEach((name, autoConfigurationClass) -> {
+				// Before的本质就是对方的After
 				if (autoConfigurationClass.getBefore().contains(className)) {
 					classesRequestedAfter.add(name);
 				}
@@ -182,16 +193,18 @@ class AutoConfigurationSorter {
 
 		Set<String> getBefore() {
 			if (this.before == null) {
-				this.before = (wasProcessed() ? this.autoConfigurationMetadata.getSet(this.className,
-						"AutoConfigureBefore", Collections.emptySet()) : getAnnotationValue(AutoConfigureBefore.class));
+				this.before = (wasProcessed()
+						? this.autoConfigurationMetadata.getSet(this.className, "AutoConfigureBefore", Collections.emptySet())
+						: getAnnotationValue(AutoConfigureBefore.class));
 			}
 			return this.before;
 		}
 
 		Set<String> getAfter() {
 			if (this.after == null) {
-				this.after = (wasProcessed() ? this.autoConfigurationMetadata.getSet(this.className,
-						"AutoConfigureAfter", Collections.emptySet()) : getAnnotationValue(AutoConfigureAfter.class));
+				this.after = (wasProcessed()
+						? this.autoConfigurationMetadata.getSet(this.className, "AutoConfigureAfter", Collections.emptySet())
+						: getAnnotationValue(AutoConfigureAfter.class));
 			}
 			return this.after;
 		}
