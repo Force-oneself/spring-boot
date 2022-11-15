@@ -43,13 +43,23 @@ abstract class FilteringSpringBootCondition extends SpringBootCondition
 
 	private ClassLoader beanClassLoader;
 
+	/**
+	 * 针对自动配置的Condition处理过滤
+	 *
+	 * @param autoConfigurationClasses autoConfigurationClasses
+	 * @param autoConfigurationMetadata autoConfigurationMetadata
+	 * @return  /
+	 */
 	@Override
 	public boolean[] match(String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
 		ConditionEvaluationReport report = ConditionEvaluationReport.find(this.beanFactory);
+		// 子类实现自动配置类的匹配结果
 		ConditionOutcome[] outcomes = getOutcomes(autoConfigurationClasses, autoConfigurationMetadata);
 		boolean[] match = new boolean[outcomes.length];
 		for (int i = 0; i < outcomes.length; i++) {
+			// 匹配上
 			match[i] = (outcomes[i] == null || outcomes[i].isMatch());
+			// 未匹配上
 			if (!match[i] && outcomes[i] != null) {
 				logOutcome(autoConfigurationClasses[i], outcomes[i]);
 				if (report != null) {
@@ -88,6 +98,7 @@ abstract class FilteringSpringBootCondition extends SpringBootCondition
 		}
 		List<String> matches = new ArrayList<>(classNames.size());
 		for (String candidate : classNames) {
+			// 这里就是通过类加载器加载
 			if (classNameFilter.matches(candidate, classLoader)) {
 				matches.add(candidate);
 			}

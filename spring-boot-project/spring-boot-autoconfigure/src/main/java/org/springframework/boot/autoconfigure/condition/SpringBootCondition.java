@@ -29,8 +29,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Base of all {@link Condition} implementations used with Spring Boot. Provides sensible
- * logging to help the user diagnose what classes are loaded.
+ * Spring Boot使用的所有｛@link Condition｝实现的基础。提供合理的日志记录帮助用户诊断加载了哪些类。
  *
  * @author Phillip Webb
  * @author Greg Turnquist
@@ -40,10 +39,18 @@ public abstract class SpringBootCondition implements Condition {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
+	/**
+	 * SpringBoot 提供一个方法模版
+	 *
+	 * @param context context
+	 * @param metadata metadata
+	 * @return  /
+	 */
 	@Override
 	public final boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 		String classOrMethodName = getClassOrMethodName(metadata);
 		try {
+			// 匹配逻辑交由子类实现并封装成ConditionOutcome方便记录日志
 			ConditionOutcome outcome = getMatchOutcome(context, metadata);
 			logOutcome(classOrMethodName, outcome);
 			recordEvaluation(context, classOrMethodName, outcome);

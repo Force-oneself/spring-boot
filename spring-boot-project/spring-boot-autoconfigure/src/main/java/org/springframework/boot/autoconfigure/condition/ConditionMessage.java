@@ -396,12 +396,12 @@ public final class ConditionMessage {
 	}
 
 	/**
-	 * Render styles.
+	 * 渲染样式.
 	 */
 	public enum Style {
 
 		/**
-		 * Render with normal styling.
+		 * 使用普通样式渲染。
 		 */
 		NORMAL {
 
@@ -413,7 +413,7 @@ public final class ConditionMessage {
 		},
 
 		/**
-		 * Render with the item surrounded by quotes.
+		 * 渲染时项目用引号括起来。
 		 */
 		QUOTE {
 

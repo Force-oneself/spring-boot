@@ -47,6 +47,7 @@ class OnJavaCondition extends SpringBootCondition {
 	}
 
 	protected ConditionOutcome getMatchOutcome(Range range, JavaVersion runningVersion, JavaVersion version) {
+		// 很简单就是判断Java版本是不是匹配
 		boolean match = isWithin(runningVersion, range, version);
 		String expected = String.format((range != Range.EQUAL_OR_NEWER) ? "(older than %s)" : "(%s or newer)", version);
 		ConditionMessage message = ConditionMessage.forCondition(ConditionalOnJava.class, expected)
@@ -62,9 +63,11 @@ class OnJavaCondition extends SpringBootCondition {
 	 * @return if this version is within the specified range
 	 */
 	private boolean isWithin(JavaVersion runningVersion, Range range, JavaVersion version) {
+		// 大于等于该Java版本
 		if (range == Range.EQUAL_OR_NEWER) {
 			return runningVersion.isEqualOrNewerThan(version);
 		}
+		// 小于
 		if (range == Range.OLDER_THAN) {
 			return runningVersion.isOlderThan(version);
 		}
