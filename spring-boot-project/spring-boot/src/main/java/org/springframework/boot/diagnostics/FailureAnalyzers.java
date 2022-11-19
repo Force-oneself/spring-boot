@@ -68,6 +68,7 @@ final class FailureAnalyzers implements SpringBootExceptionReporter {
 	}
 
 	private List<FailureAnalyzer> loadFailureAnalyzers(ClassLoader classLoader) {
+		// Force-Spring spring.factories读取FailureAnalyzer
 		List<String> analyzerNames = SpringFactoriesLoader.loadFactoryNames(FailureAnalyzer.class, classLoader);
 		List<FailureAnalyzer> analyzers = new ArrayList<>();
 		for (String analyzerName : analyzerNames) {
@@ -108,6 +109,7 @@ final class FailureAnalyzers implements SpringBootExceptionReporter {
 	private FailureAnalysis analyze(Throwable failure, List<FailureAnalyzer> analyzers) {
 		for (FailureAnalyzer analyzer : analyzers) {
 			try {
+				// Force-Spring 拓展：FailureAnalyzer执行analyze
 				FailureAnalysis analysis = analyzer.analyze(failure);
 				if (analysis != null) {
 					return analysis;
@@ -121,12 +123,14 @@ final class FailureAnalyzers implements SpringBootExceptionReporter {
 	}
 
 	private boolean report(FailureAnalysis analysis, ClassLoader classLoader) {
+		// Force-Spring spring.factories读取FailureAnalysisReporter
 		List<FailureAnalysisReporter> reporters = SpringFactoriesLoader.loadFactories(FailureAnalysisReporter.class,
 				classLoader);
 		if (analysis == null || reporters.isEmpty()) {
 			return false;
 		}
 		for (FailureAnalysisReporter reporter : reporters) {
+			// Force-Spring 拓展：FailureAnalysisReporter执行report
 			reporter.report(analysis);
 		}
 		return true;

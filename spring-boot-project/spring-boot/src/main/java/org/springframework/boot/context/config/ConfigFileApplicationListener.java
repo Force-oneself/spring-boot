@@ -186,11 +186,13 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 		postProcessors.add(this);
 		AnnotationAwareOrderComparator.sort(postProcessors);
 		for (EnvironmentPostProcessor postProcessor : postProcessors) {
+			// Force-Spring EnvironmentPostProcessor执行postProcessEnvironment
 			postProcessor.postProcessEnvironment(event.getEnvironment(), event.getSpringApplication());
 		}
 	}
 
 	List<EnvironmentPostProcessor> loadPostProcessors() {
+		// Force-Spring spring.factories读取EnvironmentPostProcessor
 		return SpringFactoriesLoader.loadFactories(EnvironmentPostProcessor.class, getClass().getClassLoader());
 	}
 
@@ -316,6 +318,7 @@ public class ConfigFileApplicationListener implements EnvironmentPostProcessor, 
 			this.environment = environment;
 			this.placeholdersResolver = new PropertySourcesPlaceholdersResolver(this.environment);
 			this.resourceLoader = (resourceLoader != null) ? resourceLoader : new DefaultResourceLoader();
+			// Force-Spring spring.factories读取PropertySourceLoader
 			this.propertySourceLoaders = SpringFactoriesLoader.loadFactories(PropertySourceLoader.class,
 					getClass().getClassLoader());
 		}

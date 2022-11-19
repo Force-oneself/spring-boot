@@ -271,9 +271,9 @@ public class SpringApplication {
         Assert.notNull(primarySources, "PrimarySources must not be null");
         this.primarySources = new LinkedHashSet<>(Arrays.asList(primarySources));
         this.webApplicationType = WebApplicationType.deduceFromClasspath();
-		// Force-Spring 1.spring.factories读取ApplicationContextInitializer
+		// Force-Spring spring.factories读取ApplicationContextInitializer
         setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class));
-		// Force-Spring 2.spring.factories读取ApplicationListener
+		// Force-Spring spring.factories读取ApplicationListener
         setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
         this.mainApplicationClass = deduceMainApplicationClass();
     }
@@ -306,7 +306,7 @@ public class SpringApplication {
         Collection<SpringBootExceptionReporter> exceptionReporters = new ArrayList<>();
         // 不知道干嘛的
         configureHeadlessProperty();
-        // Force-Spring 3.spring.factories读取SpringApplicationRunListener
+        // Force-Spring spring.factories读取SpringApplicationRunListener
         SpringApplicationRunListeners listeners = getRunListeners(args);
         // Force-Spring 1.SpringApplicationRunListener 执行 starting
         listeners.starting();
@@ -320,7 +320,7 @@ public class SpringApplication {
             Banner printedBanner = printBanner(environment);
             // 创建上下文
             context = createApplicationContext();
-            // Force-Spring 4.spring.factories读取SpringBootExceptionReporter
+            // Force-Spring spring.factories读取SpringBootExceptionReporter
             exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class,
                     // 使用带ConfigurableApplicationContext参数值为context的构造函数实例化SpringBootExceptionReporter
                     new Class[]{ConfigurableApplicationContext.class}, context);
@@ -388,7 +388,6 @@ public class SpringApplication {
     	context.setEnvironment(environment);
     	// 上下文的后处理
         postProcessApplicationContext(context);
-        // Force-Spring 拓展：ApplicationContextInitializer 执行 initialize
         applyInitializers(context);
         // Force-Spring 3.SpringApplicationRunListener 执行 contextPrepared
         listeners.contextPrepared(context);
@@ -670,6 +669,7 @@ public class SpringApplication {
             Class<?> requiredType = GenericTypeResolver.resolveTypeArgument(initializer.getClass(),
                     ApplicationContextInitializer.class);
             Assert.isInstanceOf(requiredType, context, "Unable to call initializer.");
+			// Force-Spring 拓展：ApplicationContextInitializer执行initialize
             initializer.initialize(context);
         }
     }
@@ -853,7 +853,7 @@ public class SpringApplication {
             try {
                 handleExitCode(context, exception);
                 if (listeners != null) {
-                    // TODO 6.SpringApplicationRunListener 执行 failed
+                    // Force-Spring 6.SpringApplicationRunListener 执行 failed
                     listeners.failed(context, exception);
                 }
             } finally {

@@ -98,6 +98,7 @@ public class ConfigurationPropertiesBindingPostProcessor
 	}
 
 	private void bind(ConfigurationPropertiesBean bean) {
+		// 这里只会去绑定@ConfigurationProperties的Bean
 		if (bean == null || hasBoundValueObject(bean.getName())) {
 			return;
 		}

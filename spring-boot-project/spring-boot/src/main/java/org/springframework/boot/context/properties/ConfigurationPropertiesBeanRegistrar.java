@@ -50,7 +50,8 @@ final class ConfigurationPropertiesBeanRegistrar {
 
 	void register(Class<?> type) {
 		MergedAnnotation<ConfigurationProperties> annotation = MergedAnnotations
-				.from(type, SearchStrategy.TYPE_HIERARCHY).get(ConfigurationProperties.class);
+				.from(type, SearchStrategy.TYPE_HIERARCHY)
+				.get(ConfigurationProperties.class);
 		register(type, annotation);
 	}
 
@@ -89,6 +90,7 @@ final class ConfigurationPropertiesBeanRegistrar {
 	}
 
 	private BeanDefinition createBeanDefinition(String beanName, Class<?> type) {
+		// 通过构造器绑定属性方法
 		if (BindMethod.forType(type) == BindMethod.VALUE_OBJECT) {
 			return new ConfigurationPropertiesValueObjectBeanDefinition(this.beanFactory, beanName, type);
 		}

@@ -197,6 +197,7 @@ public final class ConfigurationPropertiesBean {
 	 * {@link ConfigurationProperties @ConfigurationProperties}
 	 */
 	public static ConfigurationPropertiesBean get(ApplicationContext applicationContext, Object bean, String beanName) {
+		// 工厂方法
 		Method factoryMethod = findFactoryMethod(applicationContext, beanName);
 		return create(beanName, bean, bean.getClass(), factoryMethod);
 	}
@@ -255,13 +256,16 @@ public final class ConfigurationPropertiesBean {
 
 	private static ConfigurationPropertiesBean create(String name, Object instance, Class<?> type, Method factory) {
 		ConfigurationProperties annotation = findAnnotation(instance, type, factory, ConfigurationProperties.class);
+		// 拿不到@ConfigurationProperties注解则说明需要跳过的Bean
 		if (annotation == null) {
 			return null;
 		}
 		Validated validated = findAnnotation(instance, type, factory, Validated.class);
-		Annotation[] annotations = (validated != null) ? new Annotation[] { annotation, validated }
+		Annotation[] annotations = (validated != null)
+				? new Annotation[] { annotation, validated }
 				: new Annotation[] { annotation };
-		ResolvableType bindType = (factory != null) ? ResolvableType.forMethodReturnType(factory)
+		ResolvableType bindType = (factory != null)
+				? ResolvableType.forMethodReturnType(factory)
 				: ResolvableType.forClass(type);
 		Bindable<Object> bindTarget = Bindable.of(bindType).withAnnotations(annotations);
 		if (instance != null) {
@@ -270,16 +274,28 @@ public final class ConfigurationPropertiesBean {
 		return new ConfigurationPropertiesBean(name, instance, annotation, bindTarget);
 	}
 
+	/**
+	 * 获取Bean的注解
+	 *
+	 * @param instance Bean实体
+	 * @param type class
+	 * @param factory 工厂方法
+	 * @param annotationType 需要找的注解
+	 * @return  /
+	 */
 	private static <A extends Annotation> A findAnnotation(Object instance, Class<?> type, Method factory,
 			Class<A> annotationType) {
 		MergedAnnotation<A> annotation = MergedAnnotation.missing();
 		if (factory != null) {
+			// 从方法上查
 			annotation = findMergedAnnotation(factory, annotationType);
 		}
 		if (!annotation.isPresent()) {
+			// 从类上查
 			annotation = findMergedAnnotation(type, annotationType);
 		}
 		if (!annotation.isPresent() && AopUtils.isAopProxy(instance)) {
+			// AOP代理过的类需要获取实际的类去查
 			annotation = MergedAnnotations.from(AopUtils.getTargetClass(instance), SearchStrategy.TYPE_HIERARCHY)
 					.get(annotationType);
 		}

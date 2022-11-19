@@ -35,15 +35,18 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
 
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+		// 注册一下框架基础Bean提供配置文件的处理
 		registerInfrastructureBeans(registry);
 		ConfigurationPropertiesBeanRegistrar beanRegistrar = new ConfigurationPropertiesBeanRegistrar(registry);
 		getTypes(metadata).forEach(beanRegistrar::register);
 	}
 
 	private Set<Class<?>> getTypes(AnnotationMetadata metadata) {
+		// 获取需要开启配置文件
 		return metadata.getAnnotations().stream(EnableConfigurationProperties.class)
 				.flatMap((annotation) -> Arrays.stream(annotation.getClassArray(MergedAnnotation.VALUE)))
-				.filter((type) -> void.class != type).collect(Collectors.toSet());
+				.filter((type) -> void.class != type)
+				.collect(Collectors.toSet());
 	}
 
 	@SuppressWarnings("deprecation")
